@@ -12,6 +12,7 @@ namespace LeanTest.Mock
         /// Stores data for type <c>T</c>.
         /// </summary>
         protected List<T> Data { get; } = new List<T>();
+
         /// <summary>
         /// Store data of type <c>T</c>.
         /// </summary>
@@ -19,6 +20,7 @@ namespace LeanTest.Mock
         {
             Data.Add(data);
         }
+
         /// <summary>
         /// Clear all stored data.
         /// </summary>
@@ -27,18 +29,12 @@ namespace LeanTest.Mock
             if (type != typeof(T)) throw new ArgumentException(nameof(type));
             Data.Clear();
         }
+
         /// <summary>
         /// Override this in order to execute build actions.
         /// </summary>
-        public virtual void Build() { }
-        /// <summary>
-        /// Stores data for type <c>type</c>.
-        /// </summary>
-        /// <exception cref="ArgumentException">Thrown if <c>type</c> is not <c>T</c>.</exception>
-        public void WithData(Type type, object data) // TODO: Get rid of this when the state builder has been changed similar to the mock builder!
+        public virtual void Build()
         {
-            if (type != typeof(T)) throw new ArgumentException(nameof(type));
-            WithData((T)data);
         }
     }
 }
