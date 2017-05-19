@@ -3,7 +3,7 @@
     /// <summary>
     /// Interface for all builders (for building stuff like e.g. 'mock' and 'state').
     /// </summary>
-    internal interface IBuilder
+    public interface IBuilder
     {
         /// <summary>
         /// Register a builder for data of type <c>TData</c>
