@@ -11,6 +11,7 @@ namespace Mock.Examples.MsTest.TestSetup
         public static void AssemblyInitialize(TestContext testContext)
         {
             ContextBuilderFactory.Initialize(() => new MyOwnIoC());
+            ContextBuilderFactory.CreateContextBuilder();
         }
     }
 }

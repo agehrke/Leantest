@@ -11,7 +11,7 @@ namespace LeanTest.Mock
         private const string WithDataMethod = nameof(IMockForData<MockingBuilder>.WithData);
         private const string PreBuildMethod = nameof(IMockForData<MockingBuilder>.PreBuild);
         private const string PostBuildMethod = nameof(IMockForData<MockingBuilder>.PostBuild);
-        private const string BuildMethod = nameof(IStateHandler<StateBuilder>.Build);
+        private const string BuildMethod = nameof(IMockForData<StateBuilder>.Build);
         private readonly IIocContainer _container;
         private readonly IDataStore _dataStore;
         private readonly IDictionary<Type, Func<IEnumerable<object>>> _typedMockEnumsDelegates = new Dictionary<Type, Func<IEnumerable<object>>>();
@@ -59,5 +59,60 @@ namespace LeanTest.Mock
 
         public void WithBuilderForData<T>() => 
             _typedMockEnumsDelegates[typeof(T)] = () => from mock in _container.TryResolveAll<IMockForData<T>>() select mock as object;
+    }
+
+    internal class MockingBuilderWithContextBuilder : IBuilder
+    {
+        private const string WithDataMethod = nameof(IMockForDataWithContextBuilder<MockingBuilder>.WithData);
+        private const string PreBuildMethod = nameof(IMockForDataWithContextBuilder<MockingBuilder>.PreBuild);
+        private const string PostBuildMethod = nameof(IMockForDataWithContextBuilder<MockingBuilder>.PostBuild);
+        private const string BuildMethod = nameof(IMockForDataWithContextBuilder<StateBuilder>.Build);
+        private readonly IIocContainer _container;
+        private readonly IDataStore _dataStore;
+        private readonly IDictionary<Type, Func<IEnumerable<object>>> _typedMockEnumsDelegates = new Dictionary<Type, Func<IEnumerable<object>>>();
+
+        public MockingBuilderWithContextBuilder(IIocContainer container, IDataStore dataStore)
+        {
+            _container = container ?? throw new ArgumentNullException(nameof(container));
+            _dataStore = dataStore ?? throw new ArgumentNullException(nameof(dataStore));
+        }
+
+        public void Build()
+        {
+            var preBuildMocks = new List<object>();
+            var postBuildMethods = new List<Action>();
+
+            foreach (KeyValuePair<Type, Func<IEnumerable<object>>> mockDelegatesForType in _typedMockEnumsDelegates)
+            {
+                IEnumerable<object> mocks = mockDelegatesForType.Value().ToArray();
+
+                foreach (object mock in mocks)
+                {
+                    Type theClass = typeof(IMockForDataWithContextBuilder<>).MakeGenericType(mockDelegatesForType.Key);
+
+                    bool mustPreAndPostBuild = !preBuildMocks.Contains(mock);
+                    if (mustPreAndPostBuild)
+                    {
+                        preBuildMocks.Add(mock);
+                        theClass.GetTypeInfo().GetDeclaredMethod(PreBuildMethod).Invoke(mock, null);
+                    }
+
+                    if (_dataStore.TypedData.ContainsKey(mockDelegatesForType.Key))
+                        foreach (object data in _dataStore.TypedData[mockDelegatesForType.Key])
+                            theClass.GetTypeInfo().GetDeclaredMethod(WithDataMethod).Invoke(mock, new[] { data });
+
+                    theClass.GetTypeInfo().GetDeclaredMethod(BuildMethod).Invoke(mock, new object[] { mockDelegatesForType.Key });
+
+                    if (mustPreAndPostBuild)
+                        postBuildMethods.Add(() => theClass.GetTypeInfo().GetDeclaredMethod(PostBuildMethod).Invoke(mock, null));
+                }
+            }
+
+            foreach (Action postBuildMethod in postBuildMethods)
+                postBuildMethod();
+        }
+
+        public void WithBuilderForData<T>() => 
+            _typedMockEnumsDelegates[typeof(T)] = () => from mock in _container.TryResolveAll<IMockForDataWithContextBuilder<T>>() select mock as object;
     }
 }

@@ -69,6 +69,7 @@ namespace LeanTest.Core.ExecutionHandling
 
             AddBuilderFactory((container, dataStore) => new StateBuilder(container, dataStore));
             AddBuilderFactory((container, dataStore) => new MockingBuilder(container, dataStore));
+            AddBuilderFactory((container, dataStore) => new MockingBuilderWithContextBuilder(container, dataStore));
 
             _lazyIocContainer = new Lazy<IIocContainer>(_iocContainerFactory);
         }

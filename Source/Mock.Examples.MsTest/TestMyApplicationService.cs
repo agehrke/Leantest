@@ -22,7 +22,7 @@ namespace Mock.Examples.MsTest
 		[TestInitialize]
 		public void TestInitialize()
 		{
-			_contextBuilder = ContextBuilderFactory.CreateContextBuilder()
+			_contextBuilder = ContextBuilderFactory.ContextBuilder
 				.WithData<MyData>()
 				.Build();
 
@@ -48,6 +48,7 @@ namespace Mock.Examples.MsTest
 	{
 		public static IMockForDataWithContextBuilder<MyData> WithMyExternalService(this ContextBuilder contextBuilder)
 		{
+			// TODO: This is wrong! We do not want code outside LeanTest work directly on instances!
 			return contextBuilder.GetInstance<IMockForDataWithContextBuilder<MyData>>();
 		}
 	}

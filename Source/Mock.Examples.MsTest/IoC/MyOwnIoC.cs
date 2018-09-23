@@ -32,6 +32,12 @@ namespace Mock.Examples.MsTest.IoC
             if (typeof(T) == typeof(IMyExternalService))
                 return _myExternalService as T;
 
+            // TODO: Is this what we want?:
+            IEnumerable<T> all = TryResolveAll<T>();
+            T[] enumerable = all as T[] ?? all.ToArray();
+            if (enumerable.Any())
+                return enumerable.First();
+
             throw new ArgumentException();
         }
 
