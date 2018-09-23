@@ -49,10 +49,10 @@ namespace Mock.Examples.MsTest.IoC
 
         public IEnumerable<T> TryResolveAll<T>() where T : class
         {
-            if (typeof(T) == typeof(IMockForData<MyData>))
-                return from mock in new List<IMockForData<MyData>> { _myExternalService } select (T)mock;
-            if (typeof(T) == typeof(IMockForData<MyOtherData>))
-                return from mock in new List<IMockForData<MyOtherData>> { _myExternalService } select (T)mock;
+            if (typeof(T) == typeof(IMockForDataWithContextBuilder<MyData>))
+                return from mock in new List<IMockForDataWithContextBuilder<MyData>> { _myExternalService } select (T)mock;
+            if (typeof(T) == typeof(IMockForDataWithContextBuilder<MyOtherData>))
+                return from mock in new List<IMockForDataWithContextBuilder<MyOtherData>> { _myExternalService } select (T)mock;
 
             return new List<T>();
         }

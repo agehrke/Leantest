@@ -1,5 +1,6 @@
 ﻿using ExampleApp.Domain;
 using LeanTest.Core.ExecutionHandling;
+using LeanTest.Mock;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Mock.Examples.MsTest.Application;
 
@@ -32,13 +33,22 @@ namespace Mock.Examples.MsTest
 		public void GetAgeMustReturn10WhenKeyMatchesNewedUpData()
 		{
 			_contextBuilder
-				.WithData(new MyData { Age = 10, Key = "ac_32_576259321" })
+				.WithMyExternalService().WithData(new MyData { Age = 10, Key = "ac_32_576259321" })
 				.WithData(new MyOtherData { OtherAge = 10, OtherKey = "ac_32_576259321" })
 				.Build();
 
 			int actual = _target.GetAge("FourtyTwo");
 
 			Assert.AreEqual(10, actual);
+		}
+	}
+
+	// TODO: Implement builder for IMockForDataWithContextBuilder?
+	public static class ContextBuilderExtenstions
+	{
+		public static IMockForDataWithContextBuilder<MyData> WithMyExternalService(this ContextBuilder contextBuilder)
+		{
+			return contextBuilder.GetInstance<IMockForDataWithContextBuilder<MyData>>();
 		}
 	}
 }
